@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { connectToMongoDB } from './database/connectToMongoDB';
 import 'dotenv/config';
+import bodyParser from 'body-parser';
 
 // endoints
 import crypto from 'crypto'; // encriptación del password
@@ -31,6 +32,9 @@ app.use(
     }
   })
 );
+
+// para poder pasar el form a body del front
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -77,11 +81,14 @@ app.post('/login', async (req: Request, res: Response) => {
     }
 
     // Si el usuario existe y la contraseña es correcta:
-    return res.status(200).json({
-      ok: true, // operacion solicitada por el cliente realizada con exito
-      user: user,
-      message: 'Login successful'
-    });
+    res.redirect('/chat.html');
+    return;
+
+    // return res.status(200).json({
+    //   ok: true, // operacion solicitada por el cliente realizada con exito
+    //   user: user,
+    //   message: 'Login successful'
+    // });
   } catch (error) {
     res.status(500).send({ message: 'Internal server error', error });
   }
@@ -102,10 +109,15 @@ app.post('/register', async (req: Request, res: Response) => {
       const hashedPassword = await encryptPassword(password);
       const newUser = await createUser(trimmedUsername, hashedPassword);
 
-      res.status(201).send({
-        message: `User ${newUser.username} has been created successfully`
-      });
+      const message = `User ${newUser.username} has been created successfully`;
+      console.log(message);
+      res.redirect('/index.html');
       return;
+
+      // res.status(201).send({
+      //   message: `User ${newUser.username} has been created successfully`
+      // });
+      // return;
     } else {
       res.status(400).send({ message: 'This user already exists' });
     }

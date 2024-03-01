@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./css/loginRegisterStyles.css"
+    />
+  </head>
+  <body>
+    <div>
+      <form id="register-form" action="/register" method="post">
+        <!-- es un metodo post que manda los datos del form a /chatbot/register -->
+
+        <h1>Chatbot Register</h1>
+        <label for="username">Username</label>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          id="username"
+          name="username"
+          required
+        />
+
+        <label for="password">Password</label>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          id="password"
+          name="password"
+          required
+        />
+
+        <label for="confirm-password">Confirm Password</label>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          id="confirmPassword"
+          name="confirm-password"
+          required
+        />
+
+        <button id="registerBtn">Register</button>
+      </form>
+
+  </body>
+</html>

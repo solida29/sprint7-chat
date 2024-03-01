@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./css/loginRegisterStyles.css"
+    />
+  </head>
+  <body>
+    <div>
+      <form id="register-form">
+        <h1>Chatbot Register</h1>
+        <label for="username">Username</label>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          id="username"
+          name="username"
+          required
+        />
+
+        <label for="password">Password</label>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          id="password"
+          name="password"
+          required
+        />
+
+        <label for="confirm-password">Confirm Password</label>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          id="confirmPassword"
+          name="confirm-password"
+          required
+        />
+
+        <button id="registerBtn">Register</button>
+      </form>
+      <script>
+        const registerForm = document.getElementById("register-form");
+        const usernameElement = document.getElementById("username");
+        const passwordElement = document.getElementById("password");
+        const confirmPasswordElement = document.getElementById("confirmPassword");
+
+        const register = async () => {
+          const username = usernameElement.value;
+          const password = passwordElement.value;
+          const confirmPassword = confirmPasswordElement.value;
+  
+          if (username !== "" && password !== "" && password === confirmPassword) {
+            try {
+              // Realizar la solicitud fetch al servidor
+              const response = await fetch(
+                "http://localhost:3000/chatbot/register",
+                {
+                  credentials: "include", // Incluye las cookies en la solicitud
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ username, password }),
+                }
+              );
+  
+              const data = await response.json();
+              if (response.ok) {
+                console.log(data.message);
+                // Si las credenciales son correctas, redirigir a la página del chat
+                document.location.href = "login.html";
+              } else {
+                // Si las credenciales son incorrectas, mostrar un mensaje de error
+                alert(data.message);
+              }
+            } catch (error) {
+              console.error("Fetch Request Error:", error);
+            }
+          } else {
+            // Si los campos de entrada están vacíos, mostrar un mensaje de error
+            alert("Please fill in all the fields.");
+          }
+        };
+  
+        registerForm.addEventListener("submit", (event) => {
+          event.preventDefault(); // Evitar que se envíe el formulario
+          console.log("Form submitted!");
+
+          register();
+        });
+        </script>
+
+  </body>
+</html>

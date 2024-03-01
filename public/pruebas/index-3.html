@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./css/loginRegisterStyles.css"
+    />
+
+    <title>Login</title>
+  </head>
+  <body>
+    <div>
+      <form id="login-form" action="/login" method="post">
+        <h1>Chatbot Login</h1>
+        <label for="username">Username</label>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          id="username"
+          name="username"
+          required
+        />
+
+        <label for="password">Password</label>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          id="password"
+          name="password"
+          required
+        />
+
+        <button id="loginBtn">Login</button>
+      </form>
+      <p style="font-size: 0.8rem">
+        Not registered? <a href="register.html">Create an account</a>
+      </p>
+    </div>
+
+    <script>
+      document
+        .getElementById('login-form')
+        .addEventListener('submit', function (event) {
+          // Prevenir el comportamiento predeterminado del formulario
+          event.preventDefault();
+
+          // Obtener los valores del formulario
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+
+          // Crear el objeto con los datos del formulario
+          const data = {
+            username: username,
+            password: password
+          };
+
+          // Enviar los datos al servidor
+          fetch('http://localhost:3000/chatbot/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // Login exitoso, redirigir al usuario
+                window.location.href = 'chatbot.html';
+              } else {
+                // Mostrar error
+                alert('Error: ' + data.message);
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        });
+    </script>
+  </body>
+</html>

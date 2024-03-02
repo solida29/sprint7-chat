@@ -107,15 +107,14 @@ app.post('/register', async (req: Request, res: Response) => {
 
       const message = `User ${newUser.username} has been created successfully`;
       console.log(message);
-
-      // res.redirect('/index.html');
-      // return;
+      res.redirect('/index.html');
+      return;
 
       // PARA EL THUNDERCLIENT
-      res.status(201).send({
-        message: `User ${newUser.username} has been created successfully`
-      });
-      return;
+      // res.status(201).send({
+      //   message: `User ${newUser.username} has been created successfully`
+      // });
+      // return;
     } else {
       res.status(400).send({ message: 'This user already exists' });
     }

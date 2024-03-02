@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./css/styles.css" />
+    <title>Chat SocketIO</title>
+  </head>
+  <body>
+    <div id="chat">
+      <ul id="messagesDiv"></ul>
+      <form id="form" action="">
+        <div>
+          <input type="text" id="messageInput" autocomplete="off" />
+          <button>Send</button>
+        </div>
+        <div>
+          <span id="roomText">Room</span>
+          <input type="text" id="roomInput" autocomplete="off" />
+          <button type="button" id="roomButton">Join</button>
+        </div>
+        <div><button id="toggle-btn">Disconnect</button></div>
+      </form>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+      const form = document.getElementById('form');
+      const messagesDiv = document.getElementById('messagesDiv'); // div de todos los msg del chat
+      const messageInput = document.getElementById('messageInput');
+      const joinRoomButton = document.getElementById('roomButton');
+      const toggleButton = document.getElementById('toggle-btn');
+
+      // función para mostrar mensajes
+      function displayMessage(msg) {
+        const item = document.createElement('li');
+        item.textContent = msg;
+        messagesDiv.appendChild(item);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        //window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault(); // evita que la página se recargue, que es el comportamiento predeterminado cuando se envía un formulario.
+        const message = messageInput.value;
+        const room = roomInput.value;
+
+        if (messageInput.value) {
+          socket.emit('chat-message', (message, room));
+          messageInput.value = ''; // Borra el campo de entrada después de que el mensaje se ha enviado.
+        }
+      });
+
+      joinRoomButton.addEventListener('click', () => {
+        const room = roomInput.value;
+        socket.emit('join-room', room, (joinedMessage) =>
+          displayMessage(joinedMessage)
+        );
+      });
+
+      // when we capture a chat message event we’ll include it in the page.
+      socket.on('chat-message', (msg) => {
+        displayMessage(msg);
+      });
+
+      // toggle button disconnect
+      toggleButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (socket.connected) {
+          toggleButton.innerText = 'Connect';
+          socket.disconnect();
+        } else {
+          toggleButton.innerText = 'Disconnect';
+          socket.connect();
+        }
+      });
+    </script>
+  </body>
+</html>

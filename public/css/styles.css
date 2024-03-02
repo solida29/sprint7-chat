@@ -8,7 +8,7 @@ body {
   place-content: center;
 }
 
-#chatbot {
+#chat {
   margin: 1rem;
   padding-bottom: 6rem;
   border: 1px solid #ccc;

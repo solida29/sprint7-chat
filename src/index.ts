@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { connectToMongoDB } from './database/connectToMongoDB';
 import 'dotenv/config';
-// import bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 
 // endoints
 import crypto from 'crypto'; // encriptación del password
@@ -10,7 +10,6 @@ import { UserModel } from './database/models/userModel';
 import { IUser } from './domain/entities/IUser';
 
 const app = express();
-
 app.use(
   cors({
     origin: '*',
@@ -35,7 +34,13 @@ app.use(
 );
 
 // para poder pasar el form a body del front
-// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 
 //---------- LOGIN - REGISTER ---------------------
 function encryptPassword(password: string): string {
@@ -76,10 +81,9 @@ app.post('/login', async (req: Request, res: Response) => {
     }
 
     // Si el usuario existe y la contraseña es correcta:
-    res.redirect('/chat.html'); // response para redireccionar el front al chat
+    res.redirect('/chat.html');
     return;
 
-    // Response para Thunderclient, no es compatible con .redirect del front
     // return res.status(200).json({
     //   ok: true, // operacion solicitada por el cliente realizada con exito
     //   user: user,
@@ -107,15 +111,13 @@ app.post('/register', async (req: Request, res: Response) => {
 
       const message = `User ${newUser.username} has been created successfully`;
       console.log(message);
-
-      // res.redirect('/index.html');
-      // return;
-
-      // PARA EL THUNDERCLIENT
-      res.status(201).send({
-        message: `User ${newUser.username} has been created successfully`
-      });
+      res.redirect('/index.html');
       return;
+
+      // res.status(201).send({
+      //   message: `User ${newUser.username} has been created successfully`
+      // });
+      // return;
     } else {
       res.status(400).send({ message: 'This user already exists' });
     }
@@ -124,12 +126,11 @@ app.post('/register', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/chat', (_req: Request, res: Response) => {
+app.get('/chatbot', (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/chatbot.html');
 });
-// -------------- FIN LOGIN REGISTER ----------------------------
 
-//---------- SERVER - MONGO DBR ------------------------------
+//---------- SERVER - MONGO DBR ---------------------
 const PORT = process.env.PORT || '3000';
 const uri = process.env.MONGODB_URI!;
 

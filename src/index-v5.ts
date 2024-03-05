@@ -3,8 +3,6 @@ import cors from 'cors';
 import { connectToMongoDB } from './database/connectToMongoDB';
 import 'dotenv/config';
 import bodyParser from 'body-parser';
-import jwt from 'jsonwebtoken';
-import cookieParser from 'cookie-parser';
 
 // endoints
 import crypto from 'crypto'; // encriptación del password
@@ -12,9 +10,10 @@ import { UserModel } from './database/models/userModel';
 import { IUser } from './domain/entities/IUser';
 
 const app = express();
+
 app.use(
   cors({
-    origin: '*', // abierto a todos los puertos ¡OJO! A cambiar en produccion
+    origin: '*',
     credentials: true // Habilita el intercambio de cookies
   })
 );
@@ -37,13 +36,6 @@ app.use(
 
 // para poder pasar el form a body del front
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   res.header('Access-Control-Allow-Credentials', 'true');
-//   next();
-// });
 
 //---------- LOGIN - REGISTER ---------------------
 function encryptPassword(password: string): string {
@@ -59,22 +51,8 @@ async function createUser(username: string, password: string) {
   return newUser;
 }
 
-// create JWT
-function jwtToken(username: string) {
-  const secretKey = process.env.JWT_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error('JWT_SECRET_KEY is not defined');
-  }
-  const token = jwt.sign({ username }, secretKey, {
-    expiresIn: process.env.CADUCIDAD_TOKEN
-  });
-  return token;
-}
-
 //---- Endpoint for Login -------------------------
-app.get('/', (req: Request, res: Response) => {
-  console.log(req.cookies);
-
+app.get('/login', (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/index.html');
 }); // para el frontend
 
@@ -98,16 +76,10 @@ app.post('/login', async (req: Request, res: Response) => {
     }
 
     // Si el usuario existe y la contraseña es correcta:
-    const token = jwtToken(username);
-
-    res.cookie('jwtToken', token, { httpOnly: true, maxAge: 60 * 60 * 24 * 7 }); // almacena el token en una cookie llamada 'jwtToken'
-    // httpOnly: true asegura que la cookie no pueda ser accedida o modificada por scripts del lado del cliente, para prevenir ataques de cross-site scripting (XSS).
-    // maxAge: 60 * 60 * 24 * 7 es el tiempo de vida de 1 semana
-    // no se puede crear cookie 'Secure' porque estamos en http y no https
-
-    res.status(200).redirect('/chat.html');
+    res.redirect('/chat.html'); // response para redireccionar el front al chat
     return;
 
+    // Response para Thunderclient, no es compatible con .redirect del front
     // return res.status(200).json({
     //   ok: true, // operacion solicitada por el cliente realizada con exito
     //   user: user,
@@ -135,8 +107,15 @@ app.post('/register', async (req: Request, res: Response) => {
 
       const message = `User ${newUser.username} has been created successfully`;
       console.log(message);
-      res.status(201).redirect('/index.html');
+
+      res.redirect('/index.html');
       return;
+
+      // PARA EL THUNDERCLIENT
+      // res.status(201).send({
+      //   message: `User ${newUser.username} has been created successfully`
+      // });
+      // return;
     } else {
       res.status(400).send({ message: 'This user already exists' });
     }
@@ -146,10 +125,11 @@ app.post('/register', async (req: Request, res: Response) => {
 });
 
 app.get('/chat', (_req: Request, res: Response) => {
-  res.sendFile(process.cwd() + '/public/chat.html');
+  res.sendFile(process.cwd() + '/public/chatbot.html');
 });
+// -------------- FIN LOGIN REGISTER ----------------------------
 
-//---------- SERVER - MONGO DBR ---------------------
+//---------- SERVER - MONGO DBR ------------------------------
 const PORT = process.env.PORT || '3000';
 const uri = process.env.MONGODB_URI!;
 

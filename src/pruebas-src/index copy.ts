@@ -100,20 +100,19 @@ app.post('/login', async (req: Request, res: Response) => {
     // Si el usuario existe y la contraseña es correcta:
     const token = jwtToken(username);
 
-    res.cookie('jwtToken', token, { maxAge: 60 * 60 * 24 }); // almacena el token en una cookie llamada 'jwtToken'
+    res.cookie('jwtToken', token, { httpOnly: true, maxAge: 60 * 60 * 24 * 7 }); // almacena el token en una cookie llamada 'jwtToken'
     // httpOnly: true asegura que la cookie no pueda ser accedida o modificada por scripts del lado del cliente, para prevenir ataques de cross-site scripting (XSS).
-    // maxAge: 60 * 60 * 24 es el tiempo de vida de 1 día
+    // maxAge: 60 * 60 * 24 * 7 es el tiempo de vida de 1 semana
     // no se puede crear cookie 'Secure' porque estamos en http y no https
 
-    // res.status(200).redirect('/chat.html');
-    // return;
+    res.status(200).redirect('/chat.html');
+    return;
 
-    return res.status(200).json({
-      ok: true, // operacion solicitada por el cliente realizada con exito
-      user: user,
-      token,
-      message: 'Login successful'
-    });
+    // return res.status(200).json({
+    //   ok: true, // operacion solicitada por el cliente realizada con exito
+    //   user: user,
+    //   message: 'Login successful'
+    // });
   } catch (error) {
     res.status(500).send({ message: 'Internal server error', error });
   }
@@ -136,12 +135,7 @@ app.post('/register', async (req: Request, res: Response) => {
 
       const message = `User ${newUser.username} has been created successfully`;
       console.log(message);
-      // res.status(201).redirect('/index.html');
-
-      res.status(201).send({
-        ok: true, // operacion solicitada por el cliente realizada con exito
-        message: `User ${newUser.username} has been created successfully`
-      });
+      res.status(201).redirect('/index.html');
       return;
     } else {
       res.status(400).send({ message: 'This user already exists' });

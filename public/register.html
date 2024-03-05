@@ -12,7 +12,7 @@
   </head>
   <body>
     <div>
-      <form id="register-form" action="/register" method="post">
+      <form id="register-form">
         <!-- es un metodo post que manda los datos del form a /chatbot/register -->
 
         <h1>Chat Register</h1>
@@ -45,6 +45,54 @@
 
         <button id="registerBtn">Register</button>
       </form>
+
+      <script>
+        const registerForm = document.getElementById('register-form')
+        registerForm.addEventListener('submit', function (event) {
+        // Prevenir el comportamiento predeterminado del formulario
+        event.preventDefault();
+      
+        // Obtener los valores del formulario
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+      
+        // Verificar que las contraseñas coincidan
+        if (password !== confirmPassword) {
+          alert('Paswords doesn\'t match!');
+          return;
+        }
+      
+        // Crear el objeto con los datos del formulario
+        const data = {
+          username: username,
+          password: password
+        };
+      
+        // Enviar los datos al servidor
+        fetch('http://localhost:3000/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        
+        .then(data => {
+          if (data.ok) {
+            // Registro exitoso, redirigir al usuario
+            window.location.href = 'http://localhost:3000/';
+          } else {
+            // Mostrar error
+            alert('Error data: ' + data.message);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      });
+    </script>
 
   </body>
 </html>

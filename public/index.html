@@ -13,9 +13,7 @@
   </head>
   <body>
     <div>
-      <form id="login-form" action="/login" method="post">
-        <!-- es un metodo post que manda los datos del form a /chatbot/login-->
-
+      <form id="login-form">
         <h1>Chat Login</h1>
         <label for="username">Username</label>
         <input
@@ -41,5 +39,45 @@
         Not registered? <a href="register.html">Create an account</a>
       </p>
     </div>
+
+    <script>
+      const loginForm = document.getElementById('login-form');
+      loginForm.addEventListener('submit', function (event) {
+        // Prevenir el comportamiento predeterminado del formulario
+        event.preventDefault();
+
+        // Obtener los valores del formulario
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Crear el objeto con los datos del formulario
+        const data = {
+          username: username,
+          password: password
+        };
+
+        // Enviar los datos al servidor
+        fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.ok) {
+              // Login exitoso, redirigir al usuario
+              window.location.href = 'http://localhost:3000/chat';
+            } else {
+              // Mostrar error
+              alert('Error data: ' + data.message);
+            }
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      });
+    </script>
   </body>
 </html>

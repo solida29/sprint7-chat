@@ -80,7 +80,7 @@
           .then(response => response.json())
           
           .then(data => {
-            if (data.success) {
+            if (data.ok) {
               // Registro exitoso, redirigir al usuario
               window.location.href = 'login.html';
             } else {

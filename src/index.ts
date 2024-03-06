@@ -74,7 +74,6 @@ function jwtToken(username: string) {
 //---- Endpoint for Login -------------------------
 app.get('/', (req: Request, res: Response) => {
   console.log(req.cookies);
-
   res.sendFile(process.cwd() + '/public/index.html');
 }); // para el frontend
 

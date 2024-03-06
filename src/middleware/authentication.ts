@@ -1,11 +1,7 @@
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
-// import cookieParser from 'cookie-parser';
 
-// app.use(cookieParser());
-
-const app = express();
 const secretKey = process.env.SEED_AUTENTICACION;
 if (!secretKey) {
   throw new Error('SECRET_KEY is not defined');
@@ -36,7 +32,12 @@ export const authenticationJWT = (
   }
 };
 // Middleware de error
-app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
+export const errorMiddleware = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   if (err) {
     res
       .status(500)
@@ -44,4 +45,4 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   } else {
     next();
   }
-});
+};

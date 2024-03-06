@@ -64,11 +64,13 @@
           },
           body: JSON.stringify(data)
         })
+          // promesa resuelta: repuesta del json del backend (linea 110): return res.status(200).json({ ok:true,… }
           .then((response) => response.json())
           .then((data) => {
             if (data.ok) {
-              // Login exitoso, redirigir al usuario
+              // Si login ok => backend: res.json({ ok:true,… }
               window.location.href = 'http://localhost:3000/chat';
+              // Redirigir a la página del chat
             } else {
               // Mostrar error
               alert('Error data: ' + data.message);

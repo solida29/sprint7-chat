@@ -35,53 +35,40 @@ function jwtToken(username: string) {
 
 //---- Endpoint for Login -------------------------
 const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  const cookie = req.cookies;
-  console.log('cookie: ' + cookie);
-
-  const token = jwtToken(username);
-  console.log('token: ' + token);
-
-  if (cookie) {
-    // verifica si la cookiellamada 'jwtCookie' contiene el token
-    if (cookie['jwtCookie'] === token) {
-      res.sendFile(process.cwd() + '/public/chat.html');
+  try {
+    const { username, password } = req.body;
+    const user = await UserModel.findOne({ username });
+    if (!user) {
+      res.status(400).send({ message: 'Invalid username or password' });
+      console.log('invalid username');
+      return;
     }
-  } else {
-    try {
-      const user = await UserModel.findOne({ username });
-      if (!user) {
-        res.status(400).send({ message: 'Invalid username or password' });
-        console.log('invalid username');
-        return;
-      }
 
-      const encryptedPassword = encryptPassword(password);
-      // si los 2 passwords encryptados no coinciden
-      if (encryptedPassword !== user.password) {
-        res.status(400).send({ message: 'Invalid username or password' });
-        console.log('invalid password');
-        return;
-      }
-
-      // Si el usuario existe y la contraseña es correcta: se crea el token, la cookie y manda el json al front
-      const token = jwtToken(username);
-      console.log('token: ' + token);
-
-      res.cookie('jwtCookie', token, { maxAge: 60 * 60 * 4 }); // almacena el token en una cookie llamada 'jwtToken'
-      // httpOnly: true asegura que la cookie no pueda ser accedida o modificada por scripts del lado del cliente, para prevenir ataques de cross-site scripting (XSS).
-      // maxAge: 60 * 60 * 4 es el tiempo de vida de 4 horas
-      // no se puede crear cookie 'Secure' porque estamos en http y no https
-
-      return res.status(200).json({
-        ok: true, // operacion solicitada por el cliente realizada con exito
-        user: user,
-        token,
-        message: 'Login successful'
-      });
-    } catch (error) {
-      res.status(500).send({ message: 'Internal server error', error });
+    const encryptedPassword = encryptPassword(password);
+    // si los 2 passwords encryptados no coinciden
+    if (encryptedPassword !== user.password) {
+      res.status(400).send({ message: 'Invalid username or password' });
+      console.log('invalid password');
+      return;
     }
+
+    // Si el usuario existe y la contraseña es correcta: se crea el token, la cookie y manda el json al front
+    const token = jwtToken(username);
+    console.log('token: ' + token);
+
+    res.cookie('jwtCookie', token, { maxAge: 60 * 60 * 4 }); // almacena el token en una cookie llamada 'jwtToken'
+    // httpOnly: true asegura que la cookie no pueda ser accedida o modificada por scripts del lado del cliente, para prevenir ataques de cross-site scripting (XSS).
+    // maxAge: 60 * 60 * 4 es el tiempo de vida de 4 horas
+    // no se puede crear cookie 'Secure' porque estamos en http y no https
+
+    return res.status(200).json({
+      ok: true, // operacion solicitada por el cliente realizada con exito
+      user: user,
+      token,
+      message: 'Login successful'
+    });
+  } catch (error) {
+    res.status(500).send({ message: 'Internal server error', error });
   }
 };
 

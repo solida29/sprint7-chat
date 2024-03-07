@@ -13,26 +13,35 @@ function authenticationJWT(
     throw new Error('SECRET_KEY is not defined');
   }
   // recupera el token de la cookie
-  const token: string = req.cookies.jwtToken;
-  console.log(token);
+  const token = req.cookies.jwtCookie;
+  console.log('token authentication: ' + token);
 
   if (token) {
+    let decodedToken = {};
+
     try {
-      const decodedToken = jwt.verify(token, secretKey);
+      decodedToken = jwt.verify(token, secretKey);
       req.body.username = decodedToken;
-      console.log(decodedToken);
+      console.log('decodedToken: ' + decodedToken);
+      console.log('token ok');
 
       next();
     } catch (error) {
-      res.status(400).json({
-        status: 400,
+      res.status(401).json({
+        status: 401,
         statusMsg: 'Bad Request',
         error: 'token missing or invalid'
       });
       next(error);
     }
   } else {
-    next();
+    // Envía una respuesta 401 indicando que la autenticación es necesaria
+    res.status(401).json({
+      status: 401,
+      statusMsg: 'Unauthorized',
+      error: 'Authentication required'
+    });
+    // next();
   }
 }
 // Middleware de error

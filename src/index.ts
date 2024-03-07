@@ -42,7 +42,7 @@ app.use('/', router); // path-routes de register-login
 
 //---- FRONTEND -------------------------
 app.get('/', (req: Request, res: Response) => {
-  console.log(req.cookies);
+  console.log('req.cookies: ' + req.cookies);
   res.sendFile(process.cwd() + '/public/index.html');
 });
 
@@ -50,7 +50,9 @@ app.get('/register', (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/register.html');
 });
 
-app.get('/chat', (_req: Request, res: Response) => {
+// app.use('/chat', authenticationJWT);
+
+app.get('/chat', authenticationJWT, (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/chat.html');
 });
 

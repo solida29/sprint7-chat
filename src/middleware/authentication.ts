@@ -2,22 +2,26 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const secretKey = process.env.SEED_AUTENTICACION;
-if (!secretKey) {
-  throw new Error('SECRET_KEY is not defined');
-}
-
 // Middleware para verificar el token JWT
-export const authenticationJWT = (
+function authenticationJWT(
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  const token: string = req.body.cookies.jwtToken;
+): void {
+  const secretKey = process.env.JWT_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('SECRET_KEY is not defined');
+  }
+  // recupera el token de la cookie
+  const token: string = req.cookies.jwtToken;
+  console.log(token);
+
   if (token) {
     try {
       const decodedToken = jwt.verify(token, secretKey);
-      req.body.user = decodedToken;
+      req.body.username = decodedToken;
+      console.log(decodedToken);
+
       next();
     } catch (error) {
       res.status(400).json({
@@ -30,14 +34,14 @@ export const authenticationJWT = (
   } else {
     next();
   }
-};
+}
 // Middleware de error
-export const errorMiddleware = (
+function errorAuth(
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): void {
   if (err) {
     res
       .status(500)
@@ -45,4 +49,6 @@ export const errorMiddleware = (
   } else {
     next();
   }
-};
+}
+
+export { authenticationJWT, errorAuth };

@@ -17,13 +17,13 @@ export function authenticationJWT(
   console.log('token authentication: ' + token);
 
   if (token) {
-    let decodedToken = {};
+    //let decodedToken = {};
 
     try {
-      decodedToken = jwt.verify(token, secretKey);
+      const decodedToken = jwt.verify(token, secretKey);
       req.body.username = decodedToken;
+
       console.log('decodedToken: ' + decodedToken);
-      console.log('token ok');
 
       next();
     } catch (error) {

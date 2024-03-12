@@ -23,6 +23,7 @@ function accessToken(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// sería authenticationJWT aquí
 function validAccess(token: string) {
   return token;
 }

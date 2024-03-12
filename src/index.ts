@@ -7,9 +7,14 @@ import cookieParser from 'cookie-parser';
 import { router } from './controllers/loginRegisterRoutes';
 import { authenticationJWT } from './middleware/authentication';
 
+// para el server socket
+import { createServer } from 'http';
+import { Server as SocketServer } from 'socket.io';
+import { Socket } from 'socket.io'; // type de socket
+
 const app = express();
 
-//---- MIDDLEWARE -------------------
+//---------- MIDDLEWARE --------------------------
 // Se utiliza CORS primero para permitir las solicitudes de origen cruzado.
 app.use(
   cors({
@@ -40,7 +45,7 @@ app.use(
 // Rutas
 app.use('/', router); // path-routes de register-login
 
-//---- FRONTEND -------------------------
+//---------- FRONTEND ----------------------------
 app.get('/', (req: Request, res: Response) => {
   console.log('req.cookies: ' + req.cookies);
   res.sendFile(process.cwd() + '/public/index.html');
@@ -54,13 +59,45 @@ app.get('/chat', authenticationJWT, (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/chat.html');
 });
 
+//---------- SOCKET-IO -----------------------------
+
+// server socket-io
+const server = createServer(app);
+const io = new SocketServer(server, {
+  cors: { origin: '*' },
+  connectionStateRecovery: {}
+});
+
+io.on('connection', (socket: Socket) => {
+  console.log('A user is connected with id: ' + socket.id);
+
+  socket.on('chat-message', (username: string, msg: string, room: string) => {
+    if (room === '') {
+      socket.to('default').emit('chat-message', `${username}: ${msg}`);
+    } else {
+      socket.to(room).emit('chat-message', `${username}: ${msg}`);
+    }
+    console.log('room: ' + room);
+    console.log('message: ' + msg);
+  });
+
+  socket.on('join-room', (room, joinedMessage) => {
+    socket.join(room);
+    joinedMessage(`✅ Joined ${room} room`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
 //---------- SERVER - MONGO DB ---------------------
 const PORT = process.env.PORT || '3000';
 const uri = process.env.MONGODB_URI!;
 
 connectToMongoDB(uri!)
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`✅ Server is listening on port ${PORT}, close with ^C`);
     });
   })

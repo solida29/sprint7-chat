@@ -5,7 +5,7 @@ import 'dotenv/config';
 // endoints
 import crypto from 'crypto'; // encriptación del password
 import { UserModel } from '../database/models/userModel';
-import { IUser } from '../domain/entities/IUser';
+import { IUser } from '../domain/IUser';
 
 // encriptar password con crypto
 function encryptPassword(password: string): string {

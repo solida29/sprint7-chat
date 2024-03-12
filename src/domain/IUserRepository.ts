@@ -1,4 +1,4 @@
-import { IUser } from '../entities/IUser';
+import { IUser } from './IUser';
 
 // interface de los servicios (application/userService.ts)
 export interface IUserRepository {

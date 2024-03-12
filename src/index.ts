@@ -50,8 +50,6 @@ app.get('/register', (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/register.html');
 });
 
-// app.use('/chat', authenticationJWT);
-
 app.get('/chat', authenticationJWT, (_req: Request, res: Response) => {
   res.sendFile(process.cwd() + '/public/chat.html');
 });

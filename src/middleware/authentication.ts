@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 // Middleware para verificar el token JWT
-function authenticationJWT(
+export function authenticationJWT(
   req: Request,
   res: Response,
   next: NextFunction
@@ -27,37 +27,25 @@ function authenticationJWT(
 
       next();
     } catch (error) {
-      res.status(401).json({
-        status: 401,
-        statusMsg: 'Bad Request',
-        error: 'token missing or invalid'
-      });
+      if (error instanceof jwt.TokenExpiredError) {
+        // Redirige al usuario a la página de inicio de sesión si el token ha expirado
+        res.redirect('/');
+      } else {
+        res.status(401).json({
+          status: 401,
+          statusMsg: 'Bad Request',
+          error: 'token missing or invalid'
+        });
+      }
       next(error);
     }
   } else {
-    // Envía una respuesta 401 indicando que la autenticación es necesaria
-    res.status(401).json({
-      status: 401,
-      statusMsg: 'Unauthorized',
-      error: 'Authentication required'
-    });
-    // next();
-  }
-}
-// Middleware de error
-function errorAuth(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  if (err) {
-    res
-      .status(500)
-      .send({ message: 'Error al verificar el token JWT', error: err.message });
-  } else {
-    next();
+    // Redirige al usuario a la página de inicio de sesión si hay un error
+    res.redirect('/');
   }
 }
 
-export { authenticationJWT, errorAuth };
+// Middleware de error auth
+export function errorAuth(req: Request, res: Response): void {
+  res.status(500).redirect('/');
+}

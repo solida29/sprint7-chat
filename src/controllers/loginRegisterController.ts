@@ -56,9 +56,10 @@ const login = async (req: Request, res: Response) => {
     const token = jwtToken(username);
     console.log('token: ' + token);
 
-    res.cookie('jwtCookie', token, { maxAge: 60 * 60 * 4 }); // almacena el token en una cookie llamada 'jwtToken'
+    res.cookie('username', username, { maxAge: 60 * 60 * 4 * 1000 });
+    res.cookie('jwtCookie', token, { maxAge: 60 * 60 * 4 * 1000 }); // almacena el token en una cookie llamada 'jwtToken'
     // httpOnly: true asegura que la cookie no pueda ser accedida o modificada por scripts del lado del cliente, para prevenir ataques de cross-site scripting (XSS).
-    // maxAge: 60 * 60 * 4 es el tiempo de vida de 4 horas
+    // maxAge: 60 * 60 * 4  * 1000 es el el tiempo de vida de 4 horas (maxAge espera un valor en milisegundos).
     // no se puede crear cookie 'Secure' porque estamos en http y no https
 
     return res.status(200).json({

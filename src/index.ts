@@ -75,21 +75,40 @@ io.on('connection', (socket: Socket) => {
 
   // El usuario se une a la sala 'global-room' por defecto
   socket.join('global-room');
+  console.log(socket.rooms);
 
   socket.on(
     'chat-message',
     (username: string, message: string, room: string) => {
       // io.emit('chat-message', username, message); // para comunicar con todos
-
-      io.to(room).emit('chat-message', username, message);
+      if (room === '' || room === 'global-room') {
+        room = 'global-room';
+        io.to(room).emit('chat-message', username, message);
+      } else {
+        io.to(room).emit('chat-message', username, message);
+      }
 
       console.log(
         `username: ${username} ha escrito: '${message}' en la room: ${room}`
       );
+      console.log(socket.rooms);
     }
   );
 
   socket.on('join-room', (room) => {
+    // borramos el ultimo elemento del set socket.rooms saliendo de la ultima sala donde esta el user
+    const oldRooms = new Set(socket.rooms);
+    oldRooms.forEach((lastRoom) => {
+      if (lastRoom !== socket.id && lastRoom !== room) {
+        socket.leave(lastRoom);
+      }
+    });
+
+    // si room está vacio lo susituimos por global-room
+    if (room === '') {
+      room = 'global-room';
+      socket.join(room);
+    }
     socket.join(room);
   });
 

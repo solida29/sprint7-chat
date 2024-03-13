@@ -88,13 +88,8 @@
         const room = roomInput.value;
 
         if (message) {
-          if (room === '') {
-            socket.emit('chat-message', username, message, 'global-room');
-            messageInput.value = '';
-          } else {
-            socket.emit('chat-message', username, message, room);
-            messageInput.value = '';
-          }
+          socket.emit('chat-message', username, message, room);
+          messageInput.value = '';
         }
       });
 

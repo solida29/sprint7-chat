@@ -68,23 +68,30 @@ const io = new SocketServer(server, {
   connectionStateRecovery: {}
 });
 
+// type Salida = null | undefined | '';
+
 io.on('connection', (socket: Socket) => {
   console.log('A user is connected with id: ' + socket.id);
 
-  socket.on('chat-message', (username: string, msg: string, room: string) => {
-    if (room === '') {
-      socket.to('default').emit('chat-message', `${username}: ${msg}`);
-    } else {
-      socket.to(room).emit('chat-message', `${username}: ${msg}`);
-    }
-    console.log('room: ' + room);
-    console.log('message: ' + msg);
-  });
+  socket.on(
+    'chat-message',
+    (username: string, message: string, room: string) => {
+      // io.emit('chat-message', username, message);
+      // if (room === '') {
+      //   io.to('global-room').emit('chat-message', username, message);
+      // } else {
+      io.to(room).emit('chat-message', username, message);
+      // }
 
-  socket.on('join-room', (room, joinedMessage) => {
-    socket.join(room);
-    joinedMessage(`✅ Joined ${room} room`);
-  });
+      console.log(
+        `username: ${username} ha escrito: '${message}' en la room: ${room}`
+      );
+    }
+  );
+
+  // socket.on('join-room', (room) => {
+  //   socket.join(room);
+  // });
 
   socket.on('disconnect', () => {
     console.log('User disconnected');

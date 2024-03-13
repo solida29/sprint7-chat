@@ -37,13 +37,13 @@
 
       // chat message event
       const form = document.getElementById('form');
-      const messagesDiv = document.getElementById('messagesDiv'); // div de todos los msg del chat
+      const messagesDiv = document.getElementById('messagesDiv'); // div de todos los message del chat
       const messageInput = document.getElementById('messageInput');
       const joinRoomButton = document.getElementById('roomButton');
       const toggleButton = document.getElementById('toggle-btn');
 
       // decodificamos la cookie
-      function decodeCookie(nombre) {
+      function decodeCookie(name) {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
           const cookie = cookies[i].trim();
@@ -51,21 +51,35 @@
           const nombreCookie = cookie.substring(0, separateCookie);
           const valorCookie = cookie.substring(separateCookie + 1);
 
-          if (nombreCookie === nombre) {
+          if (nombreCookie === name) {
             return decodeURIComponent(valorCookie);
           }
         }
         return null;
       }
 
+      // borramos la cookie para el logout
+      function clearCookie(name) {
+        document.cookie =
+          name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }
+
       // función para mostrar mensajes
-      function displayMessage(msg, username) {
+      function displayMessage(username, message) {
         const item = document.createElement('li');
-        item.textContent = username + ': ' + msg;
+        item.textContent = username + ': ' + message;
         messagesDiv.appendChild(item);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         //window.scrollTo(0, document.body.scrollHeight);
       }
+
+      // Controlador que se ejecuta cuando el cliente se conecte al servidor.
+      socket.on('connect', () => {
+        const username = decodeCookie('username');
+        const message = ' you are welcome 👋';
+        //roomInput.value = 'global-room';
+        displayMessage(username, message);
+      });
 
       form.addEventListener('submit', (e) => {
         e.preventDefault(); // evita que la página se recargue, que es el comportamiento predeterminado cuando se envía un formulario.
@@ -74,33 +88,31 @@
         const room = roomInput.value;
 
         if (message) {
-          socket.emit('chat-message', (username, message, room));
-          messageInput.value = ''; // Borra el campo de entrada después de que el mensaje se ha enviado.
+          if (room == '') {
+            socket.emit('chat-message', username, message, 'global-room');
+          } else {
+            socket.emit('chat-message', username, message, room);
+          }
+          //displayMessage(username, message);
+          messageInput.value = '';
         }
       });
 
-      joinRoomButton.addEventListener('click', () => {
-        const room = roomInput.value;
-        socket.emit('join-room', room, (joinedMessage) =>
-          displayMessage(joinedMessage, username)
-        );
+      //joinRoomButton.addEventListener('click', () => {
+      //  const room = roomInput.value;
+      //  socket.emit('join-room', room);
+      //});
+
+      socket.on('chat-message', (username, message) => {
+        displayMessage(username, message);
       });
 
-      // when we capture a chat message event we’ll include it in the page.
-      // socket.on('chat-message', (msg) => {
-      //  displayMessage(msg);
-      // });
-
-      // toggle button disconnect
+      // toggle button logout
       toggleButton.addEventListener('click', (e) => {
         e.preventDefault();
-        if (socket.connected) {
-          toggleButton.innerText = 'Connect';
-          socket.disconnect();
-        } else {
-          toggleButton.innerText = 'Disconnect';
-          socket.connect();
-        }
+        clearCookie('username');
+        clearCookie('jwtCookie');
+        window.location.href = 'http://localhost:3000/';
       });
     </script>
   </body>

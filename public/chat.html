@@ -88,23 +88,23 @@
         const room = roomInput.value;
 
         if (message) {
-          if (room == '') {
+          if (room === '') {
             socket.emit('chat-message', username, message, 'global-room');
+            messageInput.value = '';
           } else {
             socket.emit('chat-message', username, message, room);
+            messageInput.value = '';
           }
-          //displayMessage(username, message);
-          messageInput.value = '';
         }
       });
 
-      //joinRoomButton.addEventListener('click', () => {
-      //  const room = roomInput.value;
-      //  socket.emit('join-room', room);
-      //});
-
       socket.on('chat-message', (username, message) => {
         displayMessage(username, message);
+      });
+
+      joinRoomButton.addEventListener('click', () => {
+        const room = roomInput.value;
+        socket.emit('join-room', room);
       });
 
       // toggle button logout

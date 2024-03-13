@@ -73,15 +73,15 @@ const io = new SocketServer(server, {
 io.on('connection', (socket: Socket) => {
   console.log('A user is connected with id: ' + socket.id);
 
+  // El usuario se une a la sala 'global-room' por defecto
+  socket.join('global-room');
+
   socket.on(
     'chat-message',
     (username: string, message: string, room: string) => {
-      // io.emit('chat-message', username, message);
-      // if (room === '') {
-      //   io.to('global-room').emit('chat-message', username, message);
-      // } else {
+      // io.emit('chat-message', username, message); // para comunicar con todos
+
       io.to(room).emit('chat-message', username, message);
-      // }
 
       console.log(
         `username: ${username} ha escrito: '${message}' en la room: ${room}`
@@ -89,9 +89,9 @@ io.on('connection', (socket: Socket) => {
     }
   );
 
-  // socket.on('join-room', (room) => {
-  //   socket.join(room);
-  // });
+  socket.on('join-room', (room) => {
+    socket.join(room);
+  });
 
   socket.on('disconnect', () => {
     console.log('User disconnected');

@@ -12,6 +12,9 @@ import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import { Socket } from 'socket.io'; // type de socket
 
+// persistencia chat socket
+import { MessageModel } from './database/models/messageModel';
+
 const app = express();
 
 //---------- MIDDLEWARE --------------------------
@@ -70,6 +73,15 @@ const io = new SocketServer(server, {
 
 // type Salida = null | undefined | '';
 
+// save Message in mongoDB
+async function saveMessage(username: string, message: string, room: string) {
+  const newMessage = await new MessageModel({ username, message, room });
+
+  newMessage.save().catch((error) => {
+    console.error(error);
+  });
+}
+
 io.on('connection', (socket: Socket) => {
   console.log('A user is connected with id: ' + socket.id);
 
@@ -87,6 +99,9 @@ io.on('connection', (socket: Socket) => {
       } else {
         io.to(room).emit('chat-message', username, message);
       }
+
+      // persistencia
+      saveMessage(username, message, room);
 
       console.log(
         `username: ${username} ha escrito: '${message}' en la room: ${room}`

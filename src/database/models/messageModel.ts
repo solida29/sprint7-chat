@@ -1,14 +1,14 @@
 import { Schema, model } from 'mongoose';
 
 interface IMessage {
-  user: string;
+  username: string;
   message: string;
   room: string;
   createdAt: Date;
 }
 
 const messageSchema = new Schema<IMessage>({
-  user: {
+  username: {
     type: String,
     required: true,
     trim: true, // Elimina los espacios en blanco al principio y al final

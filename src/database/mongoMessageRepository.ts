@@ -11,7 +11,6 @@ export const saveMessage = (msg: IMessage) => {
   });
 
   newMessage.save().catch((err) => {
-    // eslint-disable-next-line no-console
     console.log(err);
   });
 };

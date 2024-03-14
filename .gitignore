@@ -22,7 +22,5 @@ coverage/
 # Ignore volume mongodb-data folder
 mongodb-data
 
-recursos
-pruebas-src
-pruebas-public
-
+_recursos
+_pruebas
